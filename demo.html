@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment Analysis Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 120px;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 15px;
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result.positive {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .result.negative {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            color: white;
+        }
+
+        .result.neutral {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .sentiment-label {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .confidence {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+        }
+
+        .scores {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .score-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+            text-transform: capitalize;
+        }
+
+        .score-value {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .error {
+            background: #fee;
+            color: #c00;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .examples {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .examples h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .example-btn {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .example-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🎯 Sentiment Analysis</h1>
+        <p class="subtitle">Analyze the emotional tone of any text using AI</p>
+
+        <textarea id="textInput" placeholder="Enter your text here... (e.g., 'I love this product!')"></textarea>
+
+        <button onclick="analyzeSentiment()" id="analyzeBtn">Analyze Sentiment</button>
+
+        <div class="loader" id="loader"></div>
+
+        <div class="result" id="result">
+            <div class="sentiment-label" id="sentimentLabel"></div>
+            <div class="confidence" id="confidence"></div>
+            <div class="scores" id="scores"></div>
+        </div>
+
+        <div class="error" id="error"></div>
+
+        <div class="examples">
+            <h3>Try these examples:</h3>
+            <button class="example-btn"
+                onclick="setExample('I absolutely love this product! It exceeded all my expectations.')">Positive
+                Review</button>
+            <button class="example-btn"
+                onclick="setExample('This is the worst experience I have ever had. Terrible quality.')">Negative
+                Review</button>
+            <button class="example-btn"
+                onclick="setExample('It works as described. Nothing special but does the job.')">Neutral Review</button>
+            <button class="example-btn" onclick="setExample('The customer service was amazing and very helpful!')">Great
+                Service</button>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000';
+
+        function setExample(text) {
+            document.getElementById('textInput').value = text;
+        }
+
+        async function analyzeSentiment() {
+            const text = document.getElementById('textInput').value.trim();
+            const resultDiv = document.getElementById('result');
+            const errorDiv = document.getElementById('error');
+            const loader = document.getElementById('loader');
+            const btn = document.getElementById('analyzeBtn');
+
+            // Reset
+            resultDiv.style.display = 'none';
+            errorDiv.style.display = 'none';
+
+            // Validate
+            if (!text) {
+                showError('Please enter some text to analyze');
+                return;
+            }
+
+            // Show loader
+            loader.style.display = 'block';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(`${API_URL}/analyze`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ text: text })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayResult(data);
+                } else {
+                    showError(data.error || 'An error occurred');
+                }
+            } catch (error) {
+                showError('Could not connect to API. Make sure it\'s running on http://localhost:5000');
+            } finally {
+                loader.style.display = 'none';
+                btn.disabled = false;
+            }
+        }
+
+        function displayResult(data) {
+            const resultDiv = document.getElementById('result');
+            const sentiment = data.sentiment;
+            const confidence = data.confidence;
+            const scores = data.scores;
+
+            // Set sentiment
+            document.getElementById('sentimentLabel').textContent = sentiment;
+            document.getElementById('confidence').textContent =
+                `Confidence: ${(confidence * 100).toFixed(1)}%`;
+
+            // Set scores
+            const scoresHtml = Object.entries(scores)
+                .map(([label, score]) => `
+                    <div class="score-item">
+                        <div class="score-label">${label}</div>
+                        <div class="score-value">${(score * 100).toFixed(1)}%</div>
+                    </div>
+                `).join('');
+
+            document.getElementById('scores').innerHTML = scoresHtml;
+
+            // Set color
+            resultDiv.className = 'result ' + sentiment;
+            resultDiv.style.display = 'block';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        // Enter key support
+        document.getElementById('textInput').addEventListener('keydown', function (e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                analyzeSentiment();
+            }
+        });
+    </script>
+</body>
+
+</html>

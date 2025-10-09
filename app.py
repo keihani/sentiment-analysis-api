@@ -7,28 +7,15 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 import warnings
+import json
 warnings.filterwarnings('ignore')
 
 app = Flask(__name__)
 CORS(app)
 
-# Sample training data (Use a larger dataset in the real project.)
-SAMPLE_DATA = [
-    ("I love this product! It's amazing.", "positive"),
-    ("This is the best thing ever!", "positive"),
-    ("Excellent service and great quality.", "positive"),
-    ("Absolutely wonderful experience.", "positive"),
-    ("I'm so happy with this purchase.", "positive"),
-    ("This is terrible. Very disappointed.", "negative"),
-    ("Worst experience ever. Don't buy this.", "negative"),
-    ("Horrible quality and bad service.", "negative"),
-    ("I hate this product.", "negative"),
-    ("Complete waste of money.", "negative"),
-    ("It's okay, nothing special.", "neutral"),
-    ("Average product, meets expectations.", "neutral"),
-    ("Not bad, not great either.", "neutral"),
-    ("It works as described.", "neutral"),
-]
+# Load sample training data from JSON file
+with open("data/sentiment_dataset.json", "r", encoding="utf-8") as f:
+    SAMPLE_DATA = json.load(f)
 
 # Initialize and train model
 class SentimentModel:

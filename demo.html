@@ -242,8 +242,7 @@
 
         <div class="examples">
             <h3>Try these examples:</h3>
-            <button class="example-btn"
-                onclick="setExample('I absolutely love this product! It exceeded all my expectations.')">Positive
+            <button class="example-btn" onclick="setExample('Really enjoyed the the product.')">Positive
                 Review</button>
             <button class="example-btn"
                 onclick="setExample('This is the worst experience I have ever had. Terrible quality.')">Negative
@@ -252,6 +251,26 @@
                 onclick="setExample('It works as described. Nothing special but does the job.')">Neutral Review</button>
             <button class="example-btn" onclick="setExample('The customer service was amazing and very helpful!')">Great
                 Service</button>
+        </div>
+
+        <div style="margin-top: 40px; text-align: center;">
+            <div style="
+            display: inline-block;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border-radius: 12px;
+            font-size: 1.1em;
+            box-shadow: 0 4px 18px rgba(102,126,234,0.10);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            ">
+                Powered by
+                <a href="https://linkedin.com/in/keihani" target="_blank" rel="noopener"
+                    style="color: #fff; text-decoration: underline; font-weight: bold;">
+                    Kevin Keihani
+                </a>
+            </div>
         </div>
     </div>
 
@@ -309,9 +328,9 @@
 
         function displayResult(data) {
             const resultDiv = document.getElementById('result');
-            const sentiment = data.sentiment;
-            const confidence = data.confidence;
-            const scores = data.scores;
+            const sentiment = data && data.sentiment ? data.sentiment : 'Unknown';
+            const confidence = data && typeof data.confidence === 'number' ? data.confidence : 0;
+            const scores = data && typeof data.scores === 'object' && data.scores !== null ? data.scores : {};
 
             // Set sentiment
             document.getElementById('sentimentLabel').textContent = sentiment;

@@ -1,3 +1,12 @@
+# SENTIMENT-ANALYSIS-API v.25
+# SPDX-License-Identifier: MIT
+#
+# Author: Kevin Keihani
+# Company: Soroush Fanavari Co
+# Contact: yz.keihani@gmail.com
+# GitHub:  https://github.com/keihani
+# LinkedIn: https://linkedin.com/in/keihani
+
 # Use Python 3.10 slim image for smaller size
 FROM python:3.10-slim
 
